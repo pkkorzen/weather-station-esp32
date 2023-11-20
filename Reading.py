@@ -49,7 +49,7 @@ class Reading():
         return self.sht30_sensor.fetch_data()
     
     def calculate_air_quality_index(self):
-        return EAQI.eaqi(sum(self.measurement_list_2_5) / self.measurements_per_hour, sum(self.measurement_list_10) / self.measurements_per_hour)
+        return EAQI.eaqi(self.get_periodic_air_quality_readings[1], self.get_periodic_air_quality_readings[2])
     
     def get_all_readings(self):
         return self.get_outside_readings, self.get_inside_readings, self.get_periodic_air_quality_readings, self.calculate_air_quality_index, self.get_heater_chamber_readings
