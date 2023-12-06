@@ -1,10 +1,10 @@
-import Button
-import Display
-import IFTTT
-import Reading
-import RgbLed
-import WebServer
-import WifiConnection
+from Button import Button
+from Display import Display
+from IFTTT import IFTTT
+from Reading import Reading
+from RgbLed import RgbLed
+from WebServer import WebServer
+from WifiConnection import WifiConnection
 from time import sleep, time
 
 import gc
@@ -19,26 +19,35 @@ ifttt = IFTTT()
 rgb_led = RgbLed()
 web_server = WebServer()
 wifi_connection = WifiConnection()
-backward_button = Button(17)
-forward_button = Button(18)
+backward_button = Button(18)
+forward_button = Button(19)
 
 def initialise_air_quality_readings():
     initialization_counter = 0
     seconds_counter = 30
     while seconds_counter > 0:
         display.oled.fill(0)
-        display.oled.text("Air quality readings initialisation starts in " + seconds_counter + " seconds.", 0, 0)
+        display.oled.text("Air quality ", 0, 0)
+        display.oled.text("readings init ", 0, 8)
+        display.oled.text("starts in ", 0, 16)
+        display.oled.text(str(seconds_counter) + " seconds.", 0, 24)
         display.oled.show()
+        seconds_counter -= 1
         sleep(1)
 
     display.oled.fill(0)
-    display.oled.text("Air quality readings initialisation in progress...", 0, 0)
+    display.oled.text("Air quality ", 0, 0)
+    display.oled.text("readings init ", 0, 8)
+    display.oled.text("in progress... ", 0, 16)
     display.oled.show()
     for x in range(reading.measurements_per_hour):
         reading.add_air_quality_readings_to_periodic_lists(initialization_counter)
         initialization_counter += 1
         display.oled.fill(0)
-        display.oled.text("Air quality readings initialisation in progress..." + (100 / reading.measurements_per_hour * (initialization_counter + 1)) + " %", 0, 0)
+        display.oled.text("Air quality ", 0, 0)
+        display.oled.text("readings init ", 0, 8)
+        display.oled.text("in progress... ", 0, 16)
+        display.oled.text(str((100 / reading.measurements_per_hour * (initialization_counter))) + " %", 0, 24)
         display.oled.show()
         sleep(3)
     reading.pms7003.sleep()

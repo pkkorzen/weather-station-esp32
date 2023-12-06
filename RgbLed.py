@@ -17,7 +17,7 @@ class RgbLed:
         5: (0, 0, 255)
         }
 
-    def __init__(self, pwm_pins=[17,18,19]):
+    def __init__(self, pwm_pins=[25,27,26]):
         self.pwm_pins = pwm_pins
         # Setup pins for PWM
         self.pwms = [PWM(Pin(self.pwm_pins[RED])),PWM(Pin(self.pwm_pins[GREEN])),

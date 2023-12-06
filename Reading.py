@@ -2,10 +2,10 @@ from sht30_ext import SHT30
 import bme280
 from pms7003 import Pms7003
 from machine import Pin, SoftI2C
-from eaqi import EAQI
+from EAQI import EAQI
 
 I2C=SoftI2C(scl=Pin(22), sda=Pin(21))
-I2C2=SoftI2C(scl=Pin(19), sda=Pin(18))
+I2C2=SoftI2C(scl=Pin(32), sda=Pin(33))
 
 # measurement_list_1 = [0,0,0,0]
 # measurement_list_2_5 = [0,0,0,0]
