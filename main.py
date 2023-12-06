@@ -6,6 +6,7 @@ from RgbLed import RgbLed
 from WebServer import WebServer
 from WifiConnection import WifiConnection
 from time import sleep, time
+import machine
 
 import gc
 gc.collect()
@@ -23,6 +24,7 @@ backward_button = Button(18)
 forward_button = Button(19)
 
 def initialise_air_quality_readings():
+    reading.pms7003.wakeup()
     initialization_counter = 0
     seconds_counter = 30
     while seconds_counter > 0:
@@ -51,7 +53,9 @@ def initialise_air_quality_readings():
         display.oled.show()
         sleep(3)
     reading.pms7003.sleep()
+    sleep(1)
     display.oled.fill(0)
+    display.oled.show()
 
 
 def next_screen(irq) :
@@ -88,7 +92,7 @@ while True:
     forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
 
     if time() - sleep_period_start >= 810:
-        reading.pms7003.wakeUp()
+        reading.pms7003.wakeup()
         measurement_period_start = time()
         sleep_period_start = measurement_period_start
     

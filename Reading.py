@@ -24,6 +24,7 @@ class Reading():
         self.measurement_list_10 = [0] * self.measurements_per_hour
 
         self.sht30_sensor = SHT30()
+        sleep(1)
         self.sht30_sensor.reset()
         self.sht30_sensor.clear_status() #clears alert pending pin no. 15
         self.sht30_sensor.start_periodic()
@@ -52,7 +53,7 @@ class Reading():
         return EAQI.eaqi(self.get_periodic_air_quality_readings[1], self.get_periodic_air_quality_readings[2])
     
     def get_all_readings(self):
-        return self.get_outside_readings, self.get_inside_readings, self.get_periodic_air_quality_readings, self.calculate_air_quality_index, self.get_heater_chamber_readings
+        return self.get_outside_readings(), self.get_inside_readings(), self.get_periodic_air_quality_readings(), self.calculate_air_quality_index(), self.get_heater_chamber_readings()
     
     def add_air_quality_readings_to_periodic_lists(self, measurement_counter):
         del self.measurement_list_1[measurement_counter]
