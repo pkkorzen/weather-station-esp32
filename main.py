@@ -15,11 +15,13 @@ reading = Reading()
 #setting alert limits
 reading.sht30_sensor.write_high_alert_limit(98.5, 69.0)
 reading.sht30_sensor.write_high_alert_limit_clear(99.0, 65.0)
+
 display = Display()
 ifttt = IFTTT()
 rgb_led = RgbLed()
 web_server = WebServer()
 wifi_connection = WifiConnection()
+
 backward_button = Button(18)
 forward_button = Button(19)
 
@@ -87,15 +89,17 @@ wifi_connection.connect_wifi()
 web_server.open_socket()
 
 while True:
+    print(reading.i2c.scan())
     #catching button clicks
     backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
     forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
-
-    if time() - sleep_period_start >= 810:
+    print("time - sleep_period: " + str(time() - sleep_period_start))
+    if time() - sleep_period_start >= 210:
+        print("inside if with wakeup of pms7003")
         reading.pms7003.wakeup()
         measurement_period_start = time()
         sleep_period_start = measurement_period_start
-    
+
     if measurement_period_start > 0 and time() - measurement_period_start > 90:
         reading.add_air_quality_readings_to_periodic_lists(measurement_counter)
         #send readings to google sheets using IFTTT
@@ -108,7 +112,7 @@ while True:
         reading.pms7003.sleep()
         measurement_period_start = 0
         sleep_period_start = time()
-    
+
     readings = reading.get_all_readings()
     #display readings on OLED
     display.set_readings(readings)

@@ -3,6 +3,7 @@ import bme280
 from pms7003 import Pms7003
 from machine import Pin, SoftI2C
 from EAQI import EAQI
+from time import sleep
 
 I2C=SoftI2C(scl=Pin(22), sda=Pin(21))
 I2C2=SoftI2C(scl=Pin(32), sda=Pin(33))
@@ -26,12 +27,15 @@ class Reading():
         self.sht30_sensor = SHT30()
         sleep(1)
         self.sht30_sensor.reset()
+        sleep(1)
         self.sht30_sensor.clear_status() #clears alert pending pin no. 15
+        sleep(1)
         self.sht30_sensor.start_periodic()
-
+        sleep(1)
         self.bme280_inside = bme280.BME280(i2c=self.i2c)
+        sleep(1)
         self.bme280_outside = bme280.BME280(i2c=self.i2c2)
-
+        sleep(1)
         self.pms7003 = Pms7003(uart=2)
 
     def get_air_quality_readings(self):
@@ -50,7 +54,7 @@ class Reading():
         return self.sht30_sensor.fetch_data()
     
     def calculate_air_quality_index(self):
-        return EAQI.eaqi(self.get_periodic_air_quality_readings[1], self.get_periodic_air_quality_readings[2])
+        return EAQI.eaqi(self.get_periodic_air_quality_readings()[1], self.get_periodic_air_quality_readings()[2])
     
     def get_all_readings(self):
         return self.get_outside_readings(), self.get_inside_readings(), self.get_periodic_air_quality_readings(), self.calculate_air_quality_index(), self.get_heater_chamber_readings()
