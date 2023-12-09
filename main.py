@@ -87,6 +87,7 @@ screen_number = 0
 wifi_connection.connect_wifi()
 #open socket
 web_server.open_socket()
+eaqi_level_index_temp = None
 
 while True:
     print(reading.i2c.scan())
@@ -94,16 +95,18 @@ while True:
     backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
     forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
     print("time - sleep_period: " + str(time() - sleep_period_start))
-    if time() - sleep_period_start >= 210:
+    if time() - sleep_period_start >= 810:
         print("inside if with wakeup of pms7003")
         reading.pms7003.wakeup()
         measurement_period_start = time()
         sleep_period_start = measurement_period_start
 
     if measurement_period_start > 0 and time() - measurement_period_start > 90:
+        print("inside if with measurement_counter")
         reading.add_air_quality_readings_to_periodic_lists(measurement_counter)
         #send readings to google sheets using IFTTT
         ifttt.make_ifttt_request(reading.get_all_readings())
+        print("ifttt request made")
         if measurement_counter == reading.measurements_per_hour - 1:
             measurement_counter = 0
         else:
@@ -122,7 +125,10 @@ while True:
         if gc.mem_free() < 102000:
             gc.collect()
         web_server.serve(readings)
-        rgb_led.light_LED(readings[3])
+        eaqi_level_index = readings[3]
+        if eaqi_level_index != eaqi_level_index_temp:
+            rgb_led.light_LED(eaqi_level_index)
+            eaqi_level_index_temp = eaqi_level_index
     except KeyboardInterrupt:
         rgb_led.deinit_pwm_pins()
         machine.reset()

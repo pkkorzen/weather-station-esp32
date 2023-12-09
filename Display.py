@@ -9,7 +9,7 @@ class Display():
     0: ["Temp zew", "Temp wew", None, None],
     1: ["Wilg zew", "Wilg wew", None, None],
     2: ["Cisn zew", "Cisn wew", None, None],
-    3: ["European air quality index", "PMS_1.0", None, None],
+    3: ["Air quality index", "PMS_1.0", None, None],
     4: ["PMS_2.5", "PMS_10.0", None, None],
     5: ["SHT_30_Temp", "SHT_30_Hum", None, None]
     }
@@ -42,11 +42,11 @@ class Display():
         self.SCREENS[0][3] = readings[1][0]
         self.SCREENS[2][3] = readings[1][1]
         self.SCREENS[1][3] = readings[1][2]
-        self.SCREENS[3][2] = readings[3]
-        self.SCREENS[3][3] = readings[2][0]
-        self.SCREENS[4][2] = readings[2][1]
-        self.SCREENS[4][3] = readings[2][2]
-        self.SCREENS[5][2] = readings[4][0]
-        self.SCREENS[5][3] = readings[4][1]
+        self.SCREENS[3][2] = str(readings[3])
+        self.SCREENS[3][3] = str(readings[2][0])
+        self.SCREENS[4][2] = str(readings[2][1])
+        self.SCREENS[4][3] = str(readings[2][2])
+        self.SCREENS[5][2] = str(readings[4][0])
+        self.SCREENS[5][3] = str(readings[4][1])
 
         

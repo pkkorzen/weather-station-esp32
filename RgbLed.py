@@ -24,8 +24,9 @@ class RgbLed:
                     PWM(Pin(self.pwm_pins[BLUE]))]
         # Set pwm frequency
         [pwm.freq(1000) for pwm in self.pwms]
+        self.turn_off_rgb()
 
-    def map_range(x, in_min, in_max, out_min, out_max):
+    def map_range(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
     def turn_off_rgb(self):

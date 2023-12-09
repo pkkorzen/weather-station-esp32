@@ -11,8 +11,8 @@ class IFTTT:
     
     def make_ifttt_request(self, readings):
         print('Connecting to', self.server)
-        json_data = '{"value1":"outside:' + readings[0] + ', inside:' + readings[1]+ '","value2":"' + readings[2] + '; index:' + readings[3] + \
-        '","value3":"' + readings[4] + '"}'
+        json_data = '{"value1":"outside:' + str(readings[0]) + ', inside:' + str(readings[1])+ '","value2":"' + str(readings[2]) + '; index:' + str(readings[3]) + \
+        '","value3":"' + str(readings[4]) + '"}'
         headers = {'Content-Type': 'application/json'}
         response = urequests.post('https://' + self.server + self.ifttt_url, data=json_data, headers=headers)
         print('Response:', response.content.decode())
