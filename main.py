@@ -7,6 +7,7 @@ from WebServer import WebServer
 from WifiConnection import WifiConnection
 from time import sleep, time
 import machine
+import _thread
 
 import gc
 gc.collect()
@@ -74,6 +75,15 @@ def previous_screen(irq) :
     else:
         screen_number -= 1
 
+def start_web_server() :
+    web_server.open_socket()
+    while True:
+        try:
+            if gc.mem_free() < 102000:
+                gc.collect()
+                web_server.serve(reading)
+        except KeyboardInterrupt:
+            machine.reset()
 
 #initialize air quality readings
 initialise_air_quality_readings()
@@ -86,11 +96,14 @@ screen_number = 0
 #connect to wifi
 wifi_connection.connect_wifi()
 #open socket
-web_server.open_socket()
+#web_server.open_socket()
+
+#start web server in a new thread
+_thread.start_new_thread(start_web_server, ())
+
 eaqi_level_index_temp = None
 
 while True:
-    print(reading.i2c.scan())
     #catching button clicks
     backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
     forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
@@ -122,9 +135,9 @@ while True:
     display.display(screen_number)
     
     try:
-        if gc.mem_free() < 102000:
-            gc.collect()
-        web_server.serve(readings)
+        #if gc.mem_free() < 102000:
+            #gc.collect()
+        #web_server.serve(readings)
         eaqi_level_index = readings[3]
         if eaqi_level_index != eaqi_level_index_temp:
             rgb_led.light_LED(eaqi_level_index)

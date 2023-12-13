@@ -34,7 +34,8 @@ class WebServer:
         self.connection.bind(address)
         self.connection.listen(1)
     
-    def serve(self, readings):
+    def serve(self, reading):
+        
         #Start a web server
         client, addr = self.connection.accept()
         client.settimeout(3.0)
@@ -43,7 +44,7 @@ class WebServer:
         client.settimeout(None)
         request = str(request)
         print('Content = %s' % request)
-        html = self.web_page(readings)
+        html = self.web_page(reading.get_all_readings())
         client.send(html)
         client.close()
         print('Connection closed')
