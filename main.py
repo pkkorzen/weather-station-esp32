@@ -1,9 +1,10 @@
 from Button import Button
 from Display import Display
 from IFTTT import IFTTT
+from CT8 import CT8
 from Reading import Reading
 from RgbLed import RgbLed
-from WebServer import WebServer
+#from WebServer import WebServer
 from WifiConnection import WifiConnection
 from time import sleep, time
 import machine
@@ -14,13 +15,14 @@ gc.collect()
 
 reading = Reading()
 #setting alert limits
-reading.sht30_sensor.write_high_alert_limit(98.5, 69.0)
+reading.sht30_sensor.write_high_alert_limit_set(98.5, 69.0)
 reading.sht30_sensor.write_high_alert_limit_clear(99.0, 65.0)
 
 display = Display()
 ifttt = IFTTT()
+ct8 = CT8()
 rgb_led = RgbLed()
-web_server = WebServer()
+#web_server = WebServer()
 wifi_connection = WifiConnection()
 
 backward_button = Button(18)
@@ -60,14 +62,12 @@ def initialise_air_quality_readings():
     display.oled.fill(0)
     display.oled.show()
 
-
 def next_screen(irq) :
     global screen_number
     if screen_number == len(display.SCREENS) - 1:
         screen_number = 0
     else:
         screen_number += 1
-    
 def previous_screen(irq) :
     global screen_number
     if screen_number == 0:
@@ -85,41 +85,34 @@ def start_web_server() :
         except KeyboardInterrupt:
             machine.reset()
 
-#initialize air quality readings
 initialise_air_quality_readings()
 
-sleep_period_start = time() - 810
+sleep_period_start = time() - 806
 measurement_counter = 0
 measurement_period_start = 0
 screen_number = 0
 
-#connect to wifi
 wifi_connection.connect_wifi()
-#open socket
-#web_server.open_socket()
 
 #start web server in a new thread
-_thread.start_new_thread(start_web_server, ())
+#_thread.start_new_thread(start_web_server, ())
 
 eaqi_level_index_temp = None
 
 while True:
-    #catching button clicks
     backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
     forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
-    print("time - sleep_period: " + str(time() - sleep_period_start))
-    if time() - sleep_period_start >= 810:
-        print("inside if with wakeup of pms7003")
+
+    if time() - sleep_period_start >= 806:
         reading.pms7003.wakeup()
         measurement_period_start = time()
         sleep_period_start = measurement_period_start
 
     if measurement_period_start > 0 and time() - measurement_period_start > 90:
-        print("inside if with measurement_counter")
         reading.add_air_quality_readings_to_periodic_lists(measurement_counter)
-        #send readings to google sheets using IFTTT
-        ifttt.make_ifttt_request(reading.get_all_readings())
-        print("ifttt request made")
+        readings = reading.get_all_readings()
+        ifttt.make_ifttt_request(readings)
+        ct8.make_ct8_request(readings)
         if measurement_counter == reading.measurements_per_hour - 1:
             measurement_counter = 0
         else:
@@ -135,8 +128,8 @@ while True:
     display.display(screen_number)
     
     try:
-        #if gc.mem_free() < 102000:
-            #gc.collect()
+        if gc.mem_free() < 102000:
+            gc.collect()
         #web_server.serve(readings)
         eaqi_level_index = readings[3]
         if eaqi_level_index != eaqi_level_index_temp:
