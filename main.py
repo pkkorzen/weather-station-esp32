@@ -100,34 +100,34 @@ wifi_connection.connect_wifi()
 eaqi_level_index_temp = None
 
 while True:
-    backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
-    forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
-
-    if time() - sleep_period_start >= 806:
-        reading.pms7003.wakeup()
-        measurement_period_start = time()
-        sleep_period_start = measurement_period_start
-
-    if measurement_period_start > 0 and time() - measurement_period_start > 90:
-        reading.add_air_quality_readings_to_periodic_lists(measurement_counter)
-        readings = reading.get_all_readings()
-        ifttt.make_ifttt_request(readings)
-        ct8.make_ct8_request(readings)
-        if measurement_counter == reading.measurements_per_hour - 1:
-            measurement_counter = 0
-        else:
-            measurement_counter += 1
-        
-        reading.pms7003.sleep()
-        measurement_period_start = 0
-        sleep_period_start = time()
-
-    readings = reading.get_all_readings()
-    #display readings on OLED
-    display.set_readings(readings)
-    display.display(screen_number)
-    
     try:
+        backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
+        forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
+
+        if time() - sleep_period_start >= 806:
+            reading.pms7003.wakeup()
+            measurement_period_start = time()
+            sleep_period_start = measurement_period_start
+
+        if measurement_period_start > 0 and time() - measurement_period_start > 90:
+            reading.add_air_quality_readings_to_periodic_lists(measurement_counter)
+            readings = reading.get_all_readings()
+            ifttt.make_ifttt_request(readings)
+            ct8.make_ct8_request(readings)
+            if measurement_counter == reading.measurements_per_hour - 1:
+                measurement_counter = 0
+            else:
+                measurement_counter += 1
+        
+            reading.pms7003.sleep()
+            measurement_period_start = 0
+            sleep_period_start = time()
+
+        readings = reading.get_all_readings()
+        #display readings on OLED
+        display.set_readings(readings)
+        display.display(screen_number)
+    
         if gc.mem_free() < 102000:
             gc.collect()
         #web_server.serve(readings)
@@ -135,7 +135,7 @@ while True:
         if eaqi_level_index != eaqi_level_index_temp:
             rgb_led.light_LED(eaqi_level_index)
             eaqi_level_index_temp = eaqi_level_index
-    except KeyboardInterrupt:
+    except Exception:
         rgb_led.deinit_pwm_pins()
         machine.reset()
     sleep(1)
