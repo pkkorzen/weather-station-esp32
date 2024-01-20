@@ -1,141 +1,56 @@
-from Button import Button
 from Display import Display
-from IFTTT import IFTTT
-from CT8 import CT8
-from Reading import Reading
-from RgbLed import RgbLed
-#from WebServer import WebServer
 from WifiConnection import WifiConnection
-from time import sleep, time
+from time import sleep
 import machine
-import _thread
+import program
+import senko
+import file_config
 
-import gc
-gc.collect()
-
-reading = Reading()
-#setting alert limits
-reading.sht30_sensor.write_high_alert_limit_set(98.5, 69.0)
-reading.sht30_sensor.write_high_alert_limit_clear(99.0, 65.0)
-
-display = Display()
-ifttt = IFTTT()
-ct8 = CT8()
-rgb_led = RgbLed()
-#web_server = WebServer()
 wifi_connection = WifiConnection()
-
-backward_button = Button(18)
-forward_button = Button(19)
-
-def initialise_air_quality_readings():
-    reading.pms7003.wakeup()
-    initialization_counter = 0
-    seconds_counter = 30
-    while seconds_counter > 0:
-        display.oled.fill(0)
-        display.oled.text("Air quality ", 0, 0)
-        display.oled.text("readings init ", 0, 8)
-        display.oled.text("starts in ", 0, 16)
-        display.oled.text(str(seconds_counter) + " seconds.", 0, 24)
-        display.oled.show()
-        seconds_counter -= 1
-        sleep(1)
-
-    display.oled.fill(0)
-    display.oled.text("Air quality ", 0, 0)
-    display.oled.text("readings init ", 0, 8)
-    display.oled.text("in progress... ", 0, 16)
-    display.oled.show()
-    for x in range(reading.measurements_per_hour):
-        reading.add_air_quality_readings_to_periodic_lists(initialization_counter)
-        initialization_counter += 1
-        display.oled.fill(0)
-        display.oled.text("Air quality ", 0, 0)
-        display.oled.text("readings init ", 0, 8)
-        display.oled.text("in progress... ", 0, 16)
-        display.oled.text(str((100 / reading.measurements_per_hour * (initialization_counter))) + " %", 0, 24)
-        display.oled.show()
-        sleep(3)
-    reading.pms7003.sleep()
-    sleep(1)
-    display.oled.fill(0)
-    display.oled.show()
-
-def next_screen(irq) :
-    global screen_number
-    if screen_number == len(display.SCREENS) - 1:
-        screen_number = 0
-    else:
-        screen_number += 1
-def previous_screen(irq) :
-    global screen_number
-    if screen_number == 0:
-        screen_number = len(display.SCREENS) - 1
-    else:
-        screen_number -= 1
-
-def start_web_server() :
-    web_server.open_socket()
-    while True:
-        try:
-            if gc.mem_free() < 102000:
-                gc.collect()
-                web_server.serve(reading)
-        except KeyboardInterrupt:
-            machine.reset()
-
-initialise_air_quality_readings()
-
-sleep_period_start = time() - 806
-measurement_counter = 0
-measurement_period_start = 0
-screen_number = 0
-
 wifi_connection.connect_wifi()
+display = Display()
 
-#start web server in a new thread
-#_thread.start_new_thread(start_web_server, ())
+def show_available_update_information():
+    clear_screen()
+    display.oled.text("Updates available", 0, 0)
+    display.oled.text("Downloading update...", 0, 8)
+    show_text()
 
-eaqi_level_index_temp = None
+def show_reboot_information():
+    clear_screen()
+    display.oled.text("Updated to", 0, 0)
+    display.oled.text("the latest version!", 0, 8)
+    display.oled.text("Rebooting... ", 0, 16)
+    show_text()
 
-while True:
-    try:
-        backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
-        forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
+def clear_screen():
+    display.oled.fill(0)
 
-        if time() - sleep_period_start >= 806:
-            reading.pms7003.wakeup()
-            measurement_period_start = time()
-            sleep_period_start = measurement_period_start
+def show_text():
+    display.oled.show()
 
-        if measurement_period_start > 0 and time() - measurement_period_start > 90:
-            reading.add_air_quality_readings_to_periodic_lists(measurement_counter)
-            readings = reading.get_all_readings()
-            ifttt.make_ifttt_request(readings)
-            ct8.make_ct8_request(readings)
-            if measurement_counter == reading.measurements_per_hour - 1:
-                measurement_counter = 0
-            else:
-                measurement_counter += 1
-        
-            reading.pms7003.sleep()
-            measurement_period_start = 0
-            sleep_period_start = time()
-
-        readings = reading.get_all_readings()
-        #display readings on OLED
-        display.set_readings(readings)
-        display.display(screen_number)
-    
-        if gc.mem_free() < 102000:
-            gc.collect()
-        #web_server.serve(readings)
-        eaqi_level_index = readings[3]
-        if eaqi_level_index != eaqi_level_index_temp:
-            rgb_led.light_LED(eaqi_level_index)
-            eaqi_level_index_temp = eaqi_level_index
-    except Exception:
-        rgb_led.deinit_pwm_pins()
-        machine.reset()
+OTA = senko.Senko(user="pkkorzen", repo="weather-station-esp32", files=file_config.files)
+#needs to check updates after reboot in case a new file, that was not present before,
+#has been added to file_config.files during an update
+if OTA.fetch():
+    show_available_update_information()
     sleep(1)
+
+    OTA.update()
+
+    show_reboot_information()
+    sleep(3)
+    machine.reset()
+
+if not updates_available:
+    updates_available = program.run(updates_available, display, OTA)
+
+if updates_available:
+    show_available_update_information()
+    sleep(1)
+
+    OTA.update()
+
+    show_reboot_information()
+    sleep(3)
+    machine.reset()
