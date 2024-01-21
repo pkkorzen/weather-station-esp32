@@ -120,6 +120,11 @@ def check_for_updates(updates_available, OTA):
 
 def run_tasks(updates_available, OTA):
     global sleep_period_start
+    global eaqi_level_index_temp
+    global measurement_counter
+    global measurement_period_start
+    global screen_number
+    global last_update_time
     try:
         backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
         forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
