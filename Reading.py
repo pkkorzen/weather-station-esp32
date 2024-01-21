@@ -1,4 +1,4 @@
-from sht30_ext_refactor import SHT30
+from sht30_ext import SHT30
 import bme280
 from pms7003 import Pms7003
 from machine import Pin, SoftI2C
