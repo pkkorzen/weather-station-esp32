@@ -152,6 +152,7 @@ def run_tasks(updates_available, OTA):
                 updates_available = check_for_updates(updates_available, OTA)
 
         readings = reading.get_all_readings()
+        sleep(1)
         #display readings on OLED
         display.set_readings(readings)
         display.display(screen_number)
