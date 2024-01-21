@@ -6,6 +6,7 @@ from Reading import Reading
 from RgbLed import RgbLed
 from time import sleep, time
 import machine
+import sys
 
 import gc
 gc.collect()
@@ -156,6 +157,7 @@ def run_tasks(updates_available, OTA):
             rgb_led.light_LED(eaqi_level_index)
             eaqi_level_index_temp = eaqi_level_index
         return updates_available
-    except Exception:
+    except Exception as e:
+        sys.print_exception(e)
         rgb_led.deinit_pwm_pins()
         machine.reset()
