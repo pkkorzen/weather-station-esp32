@@ -13,14 +13,14 @@ updates_available = False
 
 def show_available_update_information():
     clear_screen()
-    display.oled.text("Updates available", 0, 0)
+    display.oled.text("Update available", 0, 0)
     display.oled.text("Downloading update...", 0, 8)
     show_text()
 
 def show_reboot_information():
     clear_screen()
-    display.oled.text("Updated to", 0, 0)
-    display.oled.text("the latest version!", 0, 8)
+    display.oled.text("Updated to the", 0, 0)
+    display.oled.text("latest version!", 0, 8)
     display.oled.text("Rebooting... ", 0, 16)
     show_text()
 
@@ -40,7 +40,6 @@ if OTA.fetch():
     OTA.update()
 
     show_reboot_information()
-    sleep(3)
     machine.reset()
 
 if not updates_available:
@@ -53,5 +52,4 @@ if updates_available:
     OTA.update()
 
     show_reboot_information()
-    sleep(3)
     machine.reset()
