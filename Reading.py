@@ -45,10 +45,10 @@ class Reading():
         return sum(self.measurement_list_1) / self.measurements_per_hour, sum(self.measurement_list_2_5) / self.measurements_per_hour, sum(self.measurement_list_10) / self.measurements_per_hour
     
     def get_outside_readings(self):
-        return self.bme280_outside.values()
+        return self.bme280_outside.values
     
     def get_inside_readings(self):
-        return self.bme280_inside.values()
+        return self.bme280_inside.values
     
     def get_heater_chamber_readings(self):
         return self.sht30_sensor.fetch_data()
