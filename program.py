@@ -19,6 +19,8 @@ rgb_led = None
 backward_button = None
 forward_button = None
 
+sleep_period_start = None
+
 def initialise_objects(screen):
     global reading
     global display
@@ -91,7 +93,6 @@ def previous_screen(irq) :
     else:
         screen_number -= 1
 
-sleep_period_start = None
 measurement_counter = 0
 measurement_period_start = 0
 screen_number = 0
@@ -118,6 +119,7 @@ def check_for_updates(updates_available, OTA):
         return updates_available
 
 def run_tasks(updates_available, OTA):
+    global sleep_period_start
     try:
         backward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = previous_screen)
         forward_button.irq(trigger = machine.Pin.IRQ_FALLING, handler = next_screen)
