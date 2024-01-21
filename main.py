@@ -9,6 +9,7 @@ import file_config
 wifi_connection = WifiConnection()
 wifi_connection.connect_wifi()
 display = Display()
+updates_available = False
 
 def show_available_update_information():
     clear_screen()
