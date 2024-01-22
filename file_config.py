@@ -1,1 +1,1 @@
-files = ["Display.py", "Reading.py", "file_config.py", "program.py"]
+files = ["Display.py", "Reading.py", "file_config.py", "program.py", "ExceptionLogger.py"]

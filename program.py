@@ -1,12 +1,13 @@
 from Button import Button
-from Display import Display
 from IFTTT import IFTTT
 from CT8 import CT8
 from Reading import Reading
 from RgbLed import RgbLed
+from ExceptionLogger import ExceptionLogger
 from time import sleep, time
 import machine
 import sys
+import uio
 
 import gc
 gc.collect()
@@ -15,6 +16,7 @@ display = None
 ifttt = None
 ct8 = None
 rgb_led = None
+exception_logger = None
 
 backward_button = None
 forward_button = None
@@ -29,6 +31,7 @@ def initialise_objects(screen):
     global rgb_led
     global backward_button
     global forward_button
+    global exception_logger
     global sleep_period_start
 
     reading = Reading()
@@ -43,8 +46,10 @@ def initialise_objects(screen):
 
     backward_button = Button(18)
     forward_button = Button(19)
-
+    
     sleep_period_start = time() - 806
+
+    exception_logger = ExceptionLogger()
 
 def initialise_air_quality_readings():
     reading.pms7003.wakeup()
@@ -111,7 +116,10 @@ def run(updates_available, display, OTA):
                 return updates_available
             sleep(1)
     except Exception as e:
-        sys.print_exception(e)
+        buf = uio.StringIO()
+        sys.print_exception(e, buf)
+        print(buf.getvalue())
+        exception_logger.log_exception(str(e))
         rgb_led.deinit_pwm_pins()
         machine.reset()
 
