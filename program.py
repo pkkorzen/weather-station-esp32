@@ -118,8 +118,7 @@ def run(updates_available, display, OTA):
     except Exception as e:
         buf = uio.StringIO()
         sys.print_exception(e, buf)
-        print(buf.getvalue())
-        exception_logger.log_exception(str(e))
+        exception_logger.log_exception(buf.getvalue())
         rgb_led.deinit_pwm_pins()
         machine.reset()
 
