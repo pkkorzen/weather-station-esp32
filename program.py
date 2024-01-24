@@ -8,6 +8,8 @@ from time import sleep, time
 import machine
 import sys
 import uio
+import os
+from logToFile import logToFile
 
 import gc
 gc.collect()
@@ -106,6 +108,7 @@ last_update_time = time()
 eaqi_level_index_temp = None
 
 def run(updates_available, display, OTA):
+    os.dupterm(logToFile())
     try:
         initialise_objects(display)
         initialise_air_quality_readings()
