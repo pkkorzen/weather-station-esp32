@@ -121,7 +121,9 @@ def run(updates_available, display, OTA):
     except Exception as e:
         buf = uio.StringIO()
         sys.print_exception(e, buf)
-        exception_logger.log_exception(buf.getvalue())
+        traceback = buf.getvalue()
+        print(traceback)
+        exception_logger.log_exception(traceback)
         rgb_led.deinit_pwm_pins()
         machine.reset()
 
