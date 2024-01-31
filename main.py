@@ -6,11 +6,6 @@ import program
 import senko
 import file_config
 
-wifi_connection = WifiConnection()
-wifi_connection.connect_wifi()
-display = Display()
-updates_available = False
-
 def show_checking_update_information():
     clear_screen()
     display.oled.text("Checking updates...", 0, 0)
@@ -43,28 +38,36 @@ def clear_screen():
 def show_text():
     display.oled.show()
 
-OTA = senko.Senko(user="pkkorzen", repo="weather-station-esp32", files=file_config.files)
-#needs to check updates after reboot in case a new file, that was not present before,
-#has been added to file_config.files during an update
-show_checking_update_information()
-if OTA.fetch():
-    show_available_update_information()
-    sleep(1)
+try: 
+    wifi_connection = WifiConnection()
+    wifi_connection.connect_wifi()
+    display = Display()
+    updates_available = False
 
-    OTA.update()
+    OTA = senko.Senko(user="pkkorzen", repo="weather-station-esp32", files=file_config.files)
+    #needs to check updates after reboot in case a new file, that was not present before,
+    #has been added to file_config.files during an update
+    show_checking_update_information()
+    if OTA.fetch():
+        show_available_update_information()
+        sleep(1)
 
-    show_reboot_information()
-    machine.reset()
+        OTA.update()
 
-if not updates_available:
-    show_starting_information()
-    updates_available = program.run(updates_available, display, OTA)
+        show_reboot_information()
+        machine.reset()
 
-if updates_available:
-    show_available_update_information()
-    sleep(1)
+    if not updates_available:
+        show_starting_information()
+        updates_available = program.run(updates_available, display, OTA)
 
-    OTA.update()
+    if updates_available:
+        show_available_update_information()
+        sleep(1)
 
-    show_reboot_information()
+        OTA.update()
+
+        show_reboot_information()
+        machine.reset()
+except Exception as e:
     machine.reset()
