@@ -38,8 +38,11 @@ def initialise_objects(screen):
 
     reading = Reading()
     #setting alert limits
-    reading.sht30_sensor.write_high_alert_limit_set(98.5, 69.0)
-    reading.sht30_sensor.write_high_alert_limit_clear(99.0, 65.0)
+    #reading.sht30_sensor.write_high_alert_limit_set(98.5, 69.0)
+    #reading.sht30_sensor.write_high_alert_limit_clear(99.0, 65.0)
+    #set limits to disable heater since it probably broke
+    reading.sht30_sensor.write_high_alert_limit_set(98.5, 10.0)
+    reading.sht30_sensor.write_high_alert_limit_clear(99.0, 5.0)
 
     display = screen
     ifttt = IFTTT()
