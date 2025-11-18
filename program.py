@@ -111,7 +111,8 @@ last_update_time = time()
 eaqi_level_index_temp = None
 
 def run(updates_available, display, OTA):
-    os.dupterm(logToFile())
+    #code responsible for logging exception to file
+    #os.dupterm(logToFile())
     try:
         initialise_objects(display)
         initialise_air_quality_readings()
@@ -124,9 +125,11 @@ def run(updates_available, display, OTA):
     except Exception as e:
         buf = uio.StringIO()
         sys.print_exception(e, buf)
-        traceback = buf.getvalue()
-        print(traceback)
-        exception_logger.log_exception(traceback)
+        exception_logger.log_exception(buf.getvalue())
+        #code responsible for printing exception to stacktrace, in order to log it to file
+        #traceback = buf.getvalue()
+        #print(traceback)
+        #exception_logger.log_exception(traceback)
         rgb_led.deinit_pwm_pins()
         machine.reset()
 
